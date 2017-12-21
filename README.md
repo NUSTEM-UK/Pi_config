@@ -159,6 +159,7 @@ Copy the `config` file from `https://github.com/tldr-pages/tldr-node-client` to 
     pip install howdoi
 
 Add to `.profile`:
+
     if [ -d "$HOME/.local/bin" ] ; then
         PATH="$HOME/.local/bin:$PATH"
     fi
