@@ -59,12 +59,14 @@ Set to US, for most of our keyboards. Which was a mistake, since they're mostly 
 
 #### Pimoroni
 `sudo apt install pimoroni`, then in Pimoroni installer choose:
-    - Explorer HAT
-    - Unicorn HAT (needed for Node Red stuff later, even though we only have Unicorn HAT HD)
-    - Unicorn HAT HD
-    - Scroll pHAT
-    - Scroll pHAT HD
-    - MicroDot pHAT
+
+- Explorer HAT
+- Unicorn HAT (needed for Node Red stuff later, even though we only have Unicorn HAT HD)
+- Unicorn HAT HD
+- Scroll pHAT
+- Scroll pHAT HD
+- MicroDot pHAT
+
 Awesome, this puts examples into a `~/Pimoroni` directory.
 
 #### Sense HAT
