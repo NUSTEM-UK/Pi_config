@@ -40,6 +40,7 @@ Now restart
 
 Insert into `/home/pi/.config/openbox/lxde-pi-rc.xml`:  
 (**NB. Omit this stage - left as reference since this applies to PiTop lapptops*)
+
         <keybind key="0xC7">
           <action name="Execute">
             <command>brightness increase</command>
@@ -50,6 +51,7 @@ Insert into `/home/pi/.config/openbox/lxde-pi-rc.xml`:
             <command>brightness decrease</command>
           </action>
         </keybind>
+
 ...which was a bit pointless because those keys aren't on the keyboard for a Ceed. Durr. Oh, well. Onwards!
 
 ### Keyboard layout
