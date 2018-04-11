@@ -2,13 +2,14 @@
 Install log/protocol for NUSTEM's family of Pis
 
 
-## Raspberry Pi image 2017-10-09
+## Raspberry Pi image 2018-03-13
 
 ### Core burn:
-Raspbian Stretch dated 9-9-2017
+Raspbian Stretch dated 2018-03-13
 
 ### Initial updates
-Connect to Wifi Guest, 
+Connect to WiFi:
+
     sudo apt update
     sudo apt upgrade
     sudo apt autoclean
@@ -126,6 +127,9 @@ Enable as system service at boot time:
     npm install node-red-node-pi-sense-hat
 
 ### VS Code editor
+
+> Update 2018-04-11: the below seems to have failed. Instead grabbed a build from [Steve Desmond](https;//github.com/stevedesmond-ca/vscode-arm/releases) and `sudo apt install ./[filename]` the `.deb.` package.
+
     wget https://code.headmelted.com/installers/apt.sh
     chmod +x apt.sh
     sudo ./apt.sh
@@ -143,6 +147,17 @@ Somehow, we've picked up a bunch of sources.list errors.
 
 
 ### Shell comfort zone
+
+#### Nano syntax highlighting
+
+In `~/.nanorc`:
+
+    include /usr/share/nano/css.nanorc
+    include /usr/share/nano/python.nanorc
+    include /usr/share/nano/html.nanorc
+    include /usr/share/nano/json.nanorc
+    include /usr/share/nano/sh.nanorc
+    include /usr/share/nano/javascript.nanorc
 
 #### locate
 
