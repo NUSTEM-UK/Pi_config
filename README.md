@@ -1,109 +1,123 @@
 # Pi_config
+
 Install log/protocol for NUSTEM's family of Pis
 
-
-## Raspberry Pi image 2018-03-13
+## Raspberry Pi NUSTEM distribution image creation log 
 
 ### Core burn:
-Raspbian Stretch dated 2018-03-13
+
+Raspbian Buster dated 2019-06-20. Burned using Etcher.
+
+### Setup wizard
+
+The defaults here are usually pretty good. Check keyboard settings -- most of NUSTEM's keyboards are UK-spec, though (annoyingly) not all. Skip the updates and password change for now.
 
 ### Initial updates
-Connect to WiFi:
+
+Connect to WiFi: WiFiGuest, then visit neverssl.com in Chromium to complete connection.
 
     sudo apt update
+
+(with the 2019-06-20 Buster release, this requires agreement to a weird 'repository changed its Suite value from testing to stable' alert. Oops?)
+
+As of 2019-07-12, 437Mb of updates already, including pretty much all of Node, raspberrypi-kernel, raspberrypi-ui-mods, raspberrypi-bootloader, and more. Blimey. The big files are mostly openjdk stuff, I think.
+
     sudo apt upgrade
     sudo apt autoclean
     sudo apt autoremove
 
 ### Wallpaper
-Transferred via nustem share. Saved to ~/Pictures and set. `fbset -s` handy way of finding display resolution.
+
+Transferred via nustem web share (URL redacted from this public record -- ask Jonathan). Saved to ~/Pictures and set. 
+
+`fbset -s` is a handy way of finding current display resolution.
 
 ### Misc
-* Set time to Europe/London
+
+* Set time to Europe/London (appears default as of Buster)
 * in `~/.bashrc`, turn on `ll`
-* Enable Camera, SPI, I2C, SSH
+* Preferences -> Raspberry Pi Configuration -> Interfaces: Enable Camera, SPI, I2C. SSH not enabled by default, since we run our Pis without a password.
 
 Now restart
 
 ### Reconfigure menu bar launchers
+
+Do this by right-clicking the application launch area, for access to the standard (LXDE?) configuration GUI.
+
 * Remove Wolfram and Mathematica
 * Add Thonny
 
-(might wish to purge Wolfram, Mathematica and LibreOffice for space and update speed reasons, though as long as cards are 8Gb or greater I'm not convinced that's worthwhile. `apt upgrade` is only likely to be done as a re-imaging of all cards?)
+(Might wish to purge Wolfram, Mathematica and LibreOffice for space and update speed reasons, though as long as cards are 8Gb or greater I'm not convinced that's worthwhile. As of launch Buster release, Wolfram/Mathematica have been removed pending compatability.)
+
+#### CPU Usage Monitor
+
+Via Panel Applet preferences - right-click on the panel strip. Add, with percentage gauge. I can believe this isn't of much use on a Pi4, but on a 3 it's very handy to see if Chrome is spinning plates in the background.
 
 ### Pi-Top install
-    cd Downloads
-    git clone https://github.com/rricharz/pi-top-install
-    cd pi-top-install
-    chmod +x install*
-    ./install-brightness
-    ./install-poweroff
 
-Insert into `/home/pi/.config/openbox/lxde-pi-rc.xml`:  
-(**NB. Omit this stage - left as reference since this applies to PiTop lapptops*)
+We're working mostly on Pi-Top CEED desktop units. It's worth installing the Pi-Top software to allow brightness control and soft power-down.
 
-        <keybind key="0xC7">
-          <action name="Execute">
-            <command>brightness increase</command>
-          </action>
-        </keybind>
-        <keybind key="0xC6">
-          <action name="Execute">
-            <command>brightness decrease</command>
-          </action>
-        </keybind>
+    sudo apt install pt-device-manager
 
-...which was a bit pointless because those keys aren't on the keyboard for a Ceed. Durr. Oh, well. Onwards!
-
-### Keyboard layout
-Set to US, for most of our keyboards. Which was a mistake, since they're mostly UK.
+...gets you the `pt-brightness` command. `pt-brightness -h` offers help. Full brightness: `pt-brightness -b 10`. `pt-brightness --timeout 0` doesn't appear to do what one would hope, expect, or is documented. If memory serves, the way to turn idle screen blanking off on a Raspberry Pi is to install x-screensaver, then configure it so it's switched off. Yes, really.
 
 ### Python libraries, etc.
 
 #### Pimoroni
-`sudo apt install pimoroni`, then in Pimoroni installer choose:
 
-- Explorer HAT
-- Unicorn HAT (needed for Node Red stuff later, even though we only have Unicorn HAT HD)
-- Unicorn HAT HD
-- Scroll pHAT
-- Scroll pHAT HD
-- MicroDot pHAT
+Normally, I'd `sudo apt install pimoroni` to install the Pimoroni Dashboard, which would then be in the Accessories group (or `pimoroni-dashboard` at a prompt). However, as of 2019-07-11 it doesn't seem to work with Buster. The version in the repo looks like it's old, but I also can't install the more recent .deb that's tucked away in Github (but still a couple of years old). Hmm.
 
-Awesome, this puts examples into a `~/Pimoroni` directory.
+So... do this the clunky way:
 
-#### Sense HAT
-    sudo apt install sense-hat
-Already present with recent Raspbian
+    Blinkt!         curl https://get.pimoroni.com/blinkt | bash
+    Enviro pHAT     curl https://get.pimoroni.com/envirophat | bash
+    Explorer HAT    curl https://get.pimoroni.com/explorerhat | bash
+    MicroDot pHAT   curl https://get.pimoroni.com/microdotphat | bash
+    Piano HAT       curl https://get.pimoroni.com/pianohat | bash
+    Scroll pHAT     curl https://get.pimoroni.com/scrollphat | bash
+    Scroll pHAT HD  curl https://get.pimoroni.com/scrollphathd | bash
+    Unicorn HAT     curl -sS https://get.pimoroni.com/unicornhat | bash
+    Unicorn HAT HD  curl https://get.pimoroni.com/unicornhathd | bash
+    Skywriter       curl -sS get.pimoroni.com/skywriter | bash
+    Inky pHAT       sudo pip3 install inky
 
-#### PiCap **OMMITTED**
-**NB. as of October 2017 the PiCap distribution did gnarly things to other bits and I ended up starting over. Caution!**
+Notes:
 
-Basic `apt install picap` fails with a mosquitto dependency. Pending fixes:
-    
-        apt-get download picap
-        sudo apt-get install wiringpi, libsdl2-mixer-dev python-liblo python-pygame liblo-dev libav-tools espeak
-        sudo dpkg -i --ignore-depends=python-mosquitto --ignore-depends=libmosquitto-dev picap_1.3.0_armhf.deb
-    
-Ugh.
+* Choose a 'full install' in each case, and the script will put examples into a `~/Pimoroni` directory. Explorer HAT installer also covers the pHAT.
+* Enviro pHAT raises warnings for:
+  * downgrading python3-rpi.gpio from 0.6.5-1 to 0.6.3~jessie-1
+  * ...but I think that may not have happened, because requirement would be for python << 3.5, and Buster is 3.7.3-1
+* Same warning for Piano HAT, and maybe others too. There are python3-smbus issues with some scripts also.
+* Skywriter throws errors about `puredata-core` missing, suggests `apt --fix-broken install` with no packages.
+* There may be python3-smbus version issues as a result of the above installations. Ugh.
+* Speaker pHAT not installed -- disables on-board audio.
 
-        picap-setup
-        
-Example code installed into ~/PiCapExamples. Node installed under NVM.
+Getting the Skywriter HAT to work is hilarious. Needs autopy, which needs setuptools-rust, which needs Rust, which needs:
 
-        picap-intro
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-...to run the tour.
+...which works, but then autopy fails to compile with a rustc compiler error E0554. Turns out it needs Rust nightly build; code uses a `feature` structure which is regarded as unstable-only. Whaaaaaat?!
+
 
 #### Paho-MQTT library
+
     pip install paho-mqtt
 
 ### Node Red updates
+
+> Ommited 2019-07-10, Node install version is 10.15.2, which is recent enough.
+> Actually... 2019-07-11 I might be doing it anyway, as I later ran into npm version issues.
+> ...but this doesn't work as of 2019-07-11 on Buster: latest update to the script was 20 hours ago
+> so looks like it's being worked on currently. 
+> https://github.com/node-red/raspbian-deb-package/commits/master/resources/update-nodejs-and-nodered
+
 Referring to [Node-RED documentation](https://nodered.org/docs/hardware/raspberrypi), update Node via:
 
     bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
 
 Blimey. That's a bit on the brutal side.
+
+> Doesn't work 2019-07-10: `nvm` package not found
 
     sudo apt install nvm
 
@@ -128,17 +142,38 @@ Enable as system service at boot time:
 
 ### VS Code editor
 
-> Update 2018-04-11: the below seems to have failed. Instead grabbed a build from [Steve Desmond](https;//github.com/stevedesmond-ca/vscode-arm/releases) and `sudo apt install ./[filename]` the `.deb.` package.
+VS Code runs well on the Pi, *but*... recent releases use an Electron version which doesn't support ARM, and hence fail to launch. The only solution is: 
 
     wget https://code.headmelted.com/installers/apt.sh
     chmod +x apt.sh
     sudo ./apt.sh
 
-Surprisingly quick.
+This fails, but:
 
-Launch, and install Python extension. Then install pylint as recommended.
+    wget https://packagecloud.io/headmelted/codebuilds/gpgkey
+    sudo apt-key add gpgkey
+
+    sudo apt install code-oss=1.29.0-1539702286
+    sudo apt-mark hold code-oss
+
+Launch, and install Python extension. 
+
+* Install pylint as recommended.
+* Set integrated terminal to fallback (it'll prompt soon after launch, if you futz around a bit)
+* Turn off Minimap view.
+
+Still sort-of needs `/home/pi/.local/bin` in PATH.
+
+## Fonts
+
+    sudo apt install fonts-hack
+
+Turns out both Inconsolata and Hack render rather oddly on the Ceed display. Stick with Monospace 10. Terminal size 96x30.
 
 ### Tidying up
+
+> Not needed in 2019 install -- left in for reference
+
 Somehow, we've picked up a bunch of sources.list errors.
     sudo apt --fix-broken install
 ...removes picap install, and upgrades python[3]-rpi.gpio back to Stretch from Jessie.
@@ -148,16 +183,6 @@ Somehow, we've picked up a bunch of sources.list errors.
 
 ### Shell comfort zone
 
-#### Nano syntax highlighting
-
-In `~/.nanorc`:
-
-    include /usr/share/nano/css.nanorc
-    include /usr/share/nano/python.nanorc
-    include /usr/share/nano/html.nanorc
-    include /usr/share/nano/json.nanorc
-    include /usr/share/nano/sh.nanorc
-    include /usr/share/nano/javascript.nanorc
 
 #### locate
 
@@ -165,6 +190,24 @@ In `~/.nanorc`:
     sudo updatedb
 
 #### tldr
+
+See [TLDR reference](https://tldr.sh).
+
+Installing involves us fixing an npm issue; the npm version is too old for the default node version (?!). Uninstalling npm should force a fall-back to the node-installed version, but it seems simplest / safest to:
+
+    sudo npm i npm@latest -g
+
+Which jumps us from npm 5.8.0 to npm ... oh, no it doesn't. Blimey.
+
+    sudo npm uninstall -g npm
+
+Well, that's removed the npm which was in /usr/local/bin/, but the one in /usr/bin/ is still 5.8.0. Looks like we'll have to reinstall node.
+
+...and that doesn't work (see the nodeRED stuff above). However, it did _uninstall_ Node, so:
+
+    sudo apt install node npm
+
+...might get us back running.
 
     sudo npm install -g tldr
 
@@ -207,3 +250,41 @@ New password: **nustem**
 Make `.iso` image (I think I did this using Disk Utility on the Mac), then process through [PiShrink](https://github.com/Drewsif/PiShrink) so the image is as small as possible for bulk writing. I'm pretty sure I ran PiShrink via an Ubuntu VM.
 
 Ensure each written card has booted at least once, to expand the filesystem to fill the card.
+
+
+---
+
+## Ommitted from 2019 build:
+
+#### PiCap **OMMITTED**
+
+**NB. as of October 2017 the PiCap distribution did gnarly things to other bits and I ended up starting over. Caution!**
+
+Basic `apt install picap` fails with a mosquitto dependency. Pending fixes:
+
+        apt-get download picap
+        sudo apt-get install wiringpi, libsdl2-mixer-dev python-liblo python-pygame liblo-dev libav-tools espeak
+        sudo dpkg -i --ignore-depends=python-mosquitto --ignore-depends=libmosquitto-dev picap_1.3.0_armhf.deb
+
+Ugh.
+
+        picap-setup
+
+Example code installed into ~/PiCapExamples. Node installed under NVM.
+
+        picap-intro
+
+...to run the tour.
+
+#### Nano syntax highlighting
+
+> Already included in Buster install -- retained here for reference.
+
+In `~/.nanorc`:
+
+    include /usr/share/nano/css.nanorc
+    include /usr/share/nano/python.nanorc
+    include /usr/share/nano/html.nanorc
+    include /usr/share/nano/json.nanorc
+    include /usr/share/nano/sh.nanorc
+    include /usr/share/nano/javascript.nanorc
