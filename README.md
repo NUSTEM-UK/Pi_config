@@ -2,11 +2,11 @@
 
 Install log/protocol for NUSTEM's family of Pis
 
-## Raspberry Pi NUSTEM distribution image creation log 
+## Raspberry Pi NUSTEM distribution image creation log 2019-07-16
 
 ### Core burn:
 
-Raspbian Buster dated 2019-06-20. Burned using Etcher.
+Raspbian Buster dated **2019-07-10**. Burned using Etcher.
 
 ### Setup wizard
 
@@ -18,13 +18,14 @@ Connect to WiFi: WiFiGuest, then visit neverssl.com in Chromium to complete conn
 
     sudo apt update
 
-(with the 2019-06-20 Buster release, this requires agreement to a weird 'repository changed its Suite value from testing to stable' alert. Oops?)
+(with the 2019-06-20 Buster release, this requires agreement to a weird 'repository changed its Suite value from testing to stable' alert. This appears to be fixed with 2019-07-10.)
 
-As of 2019-07-12, 437Mb of updates already, including pretty much all of Node, raspberrypi-kernel, raspberrypi-ui-mods, raspberrypi-bootloader, and more. Blimey. The big files are mostly openjdk stuff, I think.
+As of 2019-07-12, 437Mb of updates already, including pretty much all of Node, raspberrypi-kernel, raspberrypi-ui-mods, raspberrypi-bootloader, and more. Blimey. The big files are mostly openjdk stuff, I think. Again, things have settled down massively as of 2019-07-16.
 
     sudo apt upgrade
     sudo apt autoclean
     sudo apt autoremove
+
 
 ### Wallpaper
 
@@ -47,7 +48,7 @@ Do this by right-clicking the application launch area, for access to the standar
 * Remove Wolfram and Mathematica
 * Add Thonny
 
-(Might wish to purge Wolfram, Mathematica and LibreOffice for space and update speed reasons, though as long as cards are 8Gb or greater I'm not convinced that's worthwhile. As of launch Buster release, Wolfram/Mathematica have been removed pending compatability.)
+(Might wish to purge Wolfram, Mathematica and LibreOffice for space and update speed reasons, though as long as cards are 8Gb or greater I'm not convinced that's worthwhile. As of launch Buster release, Wolfram/Mathematica have been removed pending compatability; as of 2019-07-10 release they seem to be back, albeit unannounced.)
 
 #### CPU Usage Monitor
 
@@ -69,34 +70,37 @@ Normally, I'd `sudo apt install pimoroni` to install the Pimoroni Dashboard, whi
 
 So... do this the clunky way:
 
-    Blinkt!         curl https://get.pimoroni.com/blinkt | bash
-    Enviro pHAT     curl https://get.pimoroni.com/envirophat | bash
-    Explorer HAT    curl https://get.pimoroni.com/explorerhat | bash
-    MicroDot pHAT   curl https://get.pimoroni.com/microdotphat | bash
-    Piano HAT       curl https://get.pimoroni.com/pianohat | bash
-    Scroll pHAT     curl https://get.pimoroni.com/scrollphat | bash
-    Scroll pHAT HD  curl https://get.pimoroni.com/scrollphathd | bash
-    Unicorn HAT     curl -sS https://get.pimoroni.com/unicornhat | bash
-    Unicorn HAT HD  curl https://get.pimoroni.com/unicornhathd | bash
-    Skywriter       curl -sS get.pimoroni.com/skywriter | bash
-    Inky pHAT       sudo pip3 install inky
+    Blinkt!         curl https://get.pimoroni.com/blinkt | bash             -- tested
+    Displayotron    curl https://get.pimoroni.com/blinkt | bash             -- 
+    Enviro pHAT     curl https://get.pimoroni.com/envirophat | bash         -- tested
+    Explorer HAT    curl https://get.pimoroni.com/explorerhat | bash        --
+    MicroDot pHAT   curl https://get.pimoroni.com/microdotphat | bash       -- tested
+    Piano HAT       curl https://get.pimoroni.com/pianohat | bash           -- doesn't work on pHAT Stack, but tested directly.
+    Scroll pHAT     curl https://get.pimoroni.com/scrollphat | bash         -- tested
+    Scroll pHAT HD  curl https://get.pimoroni.com/scrollphathd | bash       -- tested
+    Unicorn HAT     curl https://get.pimoroni.com/unicornhat | bash         --
+    Unicorn HAT HD  curl https://get.pimoroni.com/unicornhathd | bash       -- tested
+    Speaker pHAT    not installed in default image -- resets Pi audio configuration
+    Skywriter       curl get.pimoroni.com/skywriter | bash
+    Inky pHAT       sudo pip3 install inky                                  -- tested (doesn't work on pHAT Stack)
+
+- ScrollpHATHD throws an smbus error on install but appears to work.
+- Inky pHAT test code (which isn't installed via pip; the script installers are better in this sense) uses font Hanken, which isn't installed in Buster. `pip3 install font-hanken-grotesk`. Bug report filed. Also `pip3 install font-intuitive`.
+- 
 
 Notes:
 
 * Choose a 'full install' in each case, and the script will put examples into a `~/Pimoroni` directory. Explorer HAT installer also covers the pHAT.
-* Enviro pHAT raises warnings for:
-  * downgrading python3-rpi.gpio from 0.6.5-1 to 0.6.3~jessie-1
-  * ...but I think that may not have happened, because requirement would be for python << 3.5, and Buster is 3.7.3-1
-* Same warning for Piano HAT, and maybe others too. There are python3-smbus issues with some scripts also.
-* Skywriter throws errors about `puredata-core` missing, suggests `apt --fix-broken install` with no packages.
-* There may be python3-smbus version issues as a result of the above installations. Ugh.
 * Speaker pHAT not installed -- disables on-board audio.
 
-Getting the Skywriter HAT to work is hilarious. Needs autopy, which needs setuptools-rust, which needs Rust, which needs:
+Getting the Skywriter HAT to work is hilarious. Mouse control needs autopy, which needs setuptools-rust, which needs Rust, which needs:
 
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ...which works, but then autopy fails to compile with a rustc compiler error E0554. Turns out it needs Rust nightly build; code uses a `feature` structure which is regarded as unstable-only. Whaaaaaat?!
+
+...I've not bothered doing that on this pass.
+
 
 
 #### Paho-MQTT library
@@ -148,27 +152,32 @@ VS Code runs well on the Pi, *but*... recent releases use an Electron version wh
     chmod +x apt.sh
     sudo ./apt.sh
 
-This fails, but:
+This fails, but persevere:
 
     wget https://packagecloud.io/headmelted/codebuilds/gpgkey
     sudo apt-key add gpgkey
 
+    sudo apt update
     sudo apt install code-oss=1.29.0-1539702286
     sudo apt-mark hold code-oss
 
 Launch, and install Python extension. 
 
-* Install pylint as recommended.
+* Install pylint as recommended. (or `pip3 install pylint`, which I think is what vscode does behind the scenes)
 * Set integrated terminal to fallback (it'll prompt soon after launch, if you futz around a bit)
 * Turn off Minimap view.
 
-Still sort-of needs `/home/pi/.local/bin` in PATH.
+> Old, not done, left for reference: Still sort-of needs `/home/pi/.local/bin` in PATH.
 
 ## Fonts
 
-    sudo apt install fonts-hack
+    sudo apt install fonts-hack fonts-inconsolata
 
 Turns out both Inconsolata and Hack render rather oddly on the Ceed display. Stick with Monospace 10. Terminal size 96x30.
+
+    npm install git://github.com/adobe-fonts/source-code-pro.git#release
+
+(doesn't seem to have worked)
 
 ### Tidying up
 
@@ -183,7 +192,6 @@ Somehow, we've picked up a bunch of sources.list errors.
 
 ### Shell comfort zone
 
-
 #### locate
 
     sudo apt install mlocate
@@ -192,6 +200,8 @@ Somehow, we've picked up a bunch of sources.list errors.
 #### tldr
 
 See [TLDR reference](https://tldr.sh).
+
+> Didn't have to do any of the npm version stuff in more recent Buster release, left here for reference. Looks like the npm version is still old, though.
 
 Installing involves us fixing an npm issue; the npm version is too old for the default node version (?!). Uninstalling npm should force a fall-back to the node-installed version, but it seems simplest / safest to:
 
@@ -211,19 +221,71 @@ Well, that's removed the npm which was in /usr/local/bin/, but the one in /usr/b
 
     sudo npm install -g tldr
 
-Copy the `config` file from `https://github.com/tldr-pages/tldr-node-client` to `.tldrrc`, set theme to base16.
+> Back into config as performed:
+
+Copy the `config` file from `https://github.com/tldr-pages/tldr-node-client` to `.tldrrc`, set theme (on last line) to base16. Then run `tldr tar` to cache pages.
 
 #### howdoi
 
     sudo apt install libxml2-dev python3-lxml python-lxml libxslt-dev python-dev
     pip install howdoi
 
-Add to `.profile`:
+Add to `.profile`: // Not done on this pass ; already in PATH
 
     if [ -d "$HOME/.local/bin" ] ; then
         PATH="$HOME/.local/bin:$PATH"
     fi
+
+#### neofetch
+
+    sudo apt install neofetch
+
+add to `.profile`:
     
+    neofetch
+
+### Misc. modules etd.
+
+These are mostly to support our existing codebases.
+
+`python-osc` already installed (?!). 
+
+    pip3 install fuzzywuzzy python-Levenshtein termcolor
+    pip3 install pyqrcode pypng reportlab 
+    
+
+
+### GUIzero
+
+Already installed in Buster release. Interesting.
+
+    pip3 install guizero
+
+### PyGameZero
+
+Already installed in Buster. Iiiinteresting.
+
+    pip install pgzero
+
+### GraspIO
+
+Not installed in default image -- uses a bespoke OS image.
+
+## Arduino
+
+Oof. OK, let's get the installer... `https://arduino.cc`, then head to Software -> Downloads. Get Linux ARM 32bit (Raspberry Pi user). Double-click downloaded package to uncompress (takes a while). 
+
+(not done - running out of space on 8Gb card)
+
+## Processing
+
+    curl https://processing.org/download/install-arm.sh | sudo sh
+
+
+### Set audio output
+
+...to Analogue.
+
 ### Password
 
 Reset using Pi GUI tool (not `passwd` on the command line, which does sanity checking for rubbish passwords).
@@ -232,24 +294,34 @@ New password: **nustem**
 
 ### Things to include next time around
 
-* Set up Pylint within Visual Studio Code. Oops.
-* Arduino
+* Set up Pylint within Visual Studio Code. Oops. @done
+* Arduino 
 * OpenCV? Ouchie.
 * Browser defaults:
     * neverssl.com
     * microbit.org
-    * Node Red (what is that link?)
+    * Node Red (127.0.0.1:1880)
     * projects.raspberrypi.org
     * any more?
-* Pimoroni modules & example code
-* I quite like Neofetch (which I think is an `apt install`?); added to `.bashrc`, splurges a nice logo and system info when a new terminal is opened. Which is a helpful reminder of which system you're interacting with.
+* Pimoroni modules & example code @done
+* I quite like Neofetch (which I think is an `apt install`?); added to `.bashrc`, splurges a nice logo and system info when a new terminal is opened. Which is a helpful reminder of which system you're interacting with. @done
 
 
 ### Deploy
 
-Make `.iso` image (I think I did this using Disk Utility on the Mac), then process through [PiShrink](https://github.com/Drewsif/PiShrink) so the image is as small as possible for bulk writing. I'm pretty sure I ran PiShrink via an Ubuntu VM.
+We're heavily out of space on an 8Gb card - not going to be able to install Arduino or Processing. Boo!
 
-Ensure each written card has booted at least once, to expand the filesystem to fill the card.
+Make `.iso` image:
+
+* Make an image from the SD Card reader, save it as a `.dmg`
+* Convert image (Images menu) to 'CD/DVD master'. Resave.
+* Change new file name from `.cdr` to `.iso`
+
+Process through [PiShrink](https://github.com/Drewsif/PiShrink) so the image is as small as possible for bulk writing. I'm running PiShrink via an Ubuntu virtual machine and a shared folder (VirtualBox, which is clunky but works.)
+
+Boot from card, run `sudo raspi-config`, select 'Advanced options`, resize root file system, reboot.
+
+
 
 
 ---
