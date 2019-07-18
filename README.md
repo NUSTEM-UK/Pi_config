@@ -84,9 +84,8 @@ So... do this the clunky way:
     Skywriter       curl get.pimoroni.com/skywriter | bash
     Inky pHAT       sudo pip3 install inky                                  -- tested (doesn't work on pHAT Stack)
 
-- ScrollpHATHD throws an smbus error on install but appears to work.
-- Inky pHAT test code (which isn't installed via pip; the script installers are better in this sense) uses font Hanken, which isn't installed in Buster. `pip3 install font-hanken-grotesk`. Bug report filed. Also `pip3 install font-intuitive`.
-- 
+* ScrollpHATHD throws an smbus error on install but appears to work.
+* Inky pHAT test code (which isn't installed via pip; the script installers are better in this sense) uses font Hanken, which isn't installed in Buster. `pip3 install font-hanken-grotesk`. Bug report filed. Also `pip3 install font-intuitive`. 
 
 Notes:
 
@@ -188,7 +187,6 @@ Somehow, we've picked up a bunch of sources.list errors.
 ...removes picap install, and upgrades python[3]-rpi.gpio back to Stretch from Jessie.
     sudo apt upgrade
 ...needed a couple of passes to pick everything up.
-
 
 ### Shell comfort zone
 
@@ -298,13 +296,52 @@ New password: **nustem**
 * Arduino 
 * OpenCV? Ouchie.
 * Browser defaults:
-    * neverssl.com
-    * microbit.org
-    * Node Red (127.0.0.1:1880)
-    * projects.raspberrypi.org
-    * any more?
+  * neverssl.com
+  * microbit.org
+  * Node Red (127.0.0.1:1880)
+  * projects.raspberrypi.org
+  * any more?
 * Pimoroni modules & example code @done
 * I quite like Neofetch (which I think is an `apt install`?); added to `.bashrc`, splurges a nice logo and system info when a new terminal is opened. Which is a helpful reminder of which system you're interacting with. @done
+
+### Network Manager
+
+Following https://davidxie.net/install-network-manager-on-raspbian:
+
+    sudo apt install network-manager network-manager-gnome resolvconf --download-only
+    sudo nano /etc/network/interfaces
+        remove everything except:
+            auto lo
+            iface lo inet loopback
+        ...only, there's nothing in that file except an include from /etc/network/interfaces.d/, which is in turn empty.
+    sudo apt install network-manager network-manager-gnome resolvconf
+    reboot
+    sudo apt purge dhcpcd5
+    sudo ln -sf /lib/systemd/resolv.conf /etc/resolv.conf
+    
+Need to add user `pi` to network group:
+
+    sudo usermod -G netdev -a pi
+    reboot
+
+At this point the menu bar includes both Network Manager and whatever Raspbian uses as default, the latter disabled.
+
+Connect to NU Simply Web using PEAP, 'no certificate required', NUSTEM account (ee071).
+
+We still don't have routing. `sudo nano /lib/systemd/resolv.conf` to edit a file we shouldn't edit, and hard-wire the university's DNS in place:
+
+    nameserver 192.168.60.50
+
+Comment out everything else.
+
+Then:
+
+    sudo service systemd-resolved restart
+    sudo systemctl restart networking
+
+...and we have most networking. No `ping`, but `traceroute`, `apt` and web access all work as expected. Blimey.
+
+Remove the old network widget from the menu bar and faff about with spacers until it looks a bit less rubbish.
 
 
 ### Deploy
