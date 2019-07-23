@@ -106,34 +106,6 @@ Getting the Skywriter HAT to work is hilarious. Mouse control needs autopy, whic
 
     pip install paho-mqtt
 
-### Node Red updates
-
-> Ommited 2019-07-10, Node install version is 10.15.2, which is recent enough.
-> Actually... 2019-07-11 I might be doing it anyway, as I later ran into npm version issues.
-> ...but this doesn't work as of 2019-07-11 on Buster: latest update to the script was 20 hours ago
-> so looks like it's being worked on currently. 
-> https://github.com/node-red/raspbian-deb-package/commits/master/resources/update-nodejs-and-nodered
-
-Referring to [Node-RED documentation](https://nodered.org/docs/hardware/raspberrypi), update Node via:
-
-    bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
-
-Blimey. That's a bit on the brutal side.
-
-> Doesn't work 2019-07-10: `nvm` package not found
-
-    sudo apt install nvm
-
-Following for reference, not necessary if one proceeds as above:
-> Installer throwing all sorts of errors; log file suggests it's not happy about the unmet dependency in the PiCap install, and that's also done something a bit odd with node versions (albeit within nvm). I seem to have got it working with `nvm use system`. Bit worried it may be broken, though.
-> 
-> Then
->     nvm use lts/*
->     
-> as requested. Only, that complains about not having version N/A. `nvm list` lists a bunch of things, and yes, `lts` is redirected to N/A. Huh. Set to `nvm use stable` since that seems to be more recent than `system`.
-
-Enable as system service at boot time:
-    sudo systemctl enable nodered.service
 
 #### Node-red modules
 
@@ -172,11 +144,7 @@ Launch, and install Python extension.
 
     sudo apt install fonts-hack fonts-inconsolata
 
-Turns out both Inconsolata and Hack render rather oddly on the Ceed display. Stick with Monospace 10. Terminal size 96x30.
-
-    npm install git://github.com/adobe-fonts/source-code-pro.git#release
-
-(doesn't seem to have worked)
+Turns out both Inconsolata and Hack render rather oddly on the Ceed display / with whatever LCD hinting Raspbian uses. Stick with Monospace 10. Terminal size 96x30.
 
 ### Tidying up
 
@@ -238,7 +206,7 @@ Add to `.profile`: // Not done on this pass ; already in PATH
 
     sudo apt install neofetch
 
-add to `.profile`:
+add to `.bashrc`:
     
     neofetch
 
@@ -293,20 +261,20 @@ New password: **nustem**
 ### Things to include next time around
 
 * Set up Pylint within Visual Studio Code. Oops. @done
-* Arduino 
-* OpenCV? Ouchie.
+* Arduino  -- omitted for space
+* OpenCV? Ouchie. -- nope
 * Browser defaults:
-  * neverssl.com
-  * microbit.org
-  * Node Red (127.0.0.1:1880)
-  * projects.raspberrypi.org
+  * neverssl.com @done
+  * microbit.org @done
+  * Node Red (127.0.0.1:1880) @done
+  * projects.raspberrypi.org @done
   * any more?
 * Pimoroni modules & example code @done
 * I quite like Neofetch (which I think is an `apt install`?); added to `.bashrc`, splurges a nice logo and system info when a new terminal is opened. Which is a helpful reminder of which system you're interacting with. @done
 
 ### Network Manager
 
-Following https://davidxie.net/install-network-manager-on-raspbian:
+The default Raspbian networking stack fails to connect to the corporate wifi networks. NetworkManager can fix that.  Install following https://davidxie.net/install-network-manager-on-raspbian:
 
     sudo apt install network-manager network-manager-gnome resolvconf --download-only
     sudo nano /etc/network/interfaces
@@ -356,6 +324,16 @@ Make `.iso` image:
 
 Process through [PiShrink](https://github.com/Drewsif/PiShrink) so the image is as small as possible for bulk writing. I'm running PiShrink via an Ubuntu virtual machine and a shared folder (VirtualBox, which is clunky but works.)
 
+    sudo pishrink.py [source] [dest]
+
+It's worth omitting the `[dest]` if it's already a converted copy of the `.dmg`, as the first step is a copy... which takes some time for a 32Gb card.
+
+(note: I'm working from a host/guest shared folder in a VirtualBox Ubuntu 18.10 machine. To read/write the shared folder without sudo permissions, I need to (in the Ubuntu guest OS):
+
+    sudo usermod -aG vboxsf <someuserID>
+    
+and log out/in. )
+
 Boot from card, run `sudo raspi-config`, select 'Advanced options`, resize root file system, reboot.
 
 
@@ -397,3 +375,33 @@ In `~/.nanorc`:
     include /usr/share/nano/json.nanorc
     include /usr/share/nano/sh.nanorc
     include /usr/share/nano/javascript.nanorc
+
+
+### Node Red updates
+
+> Ommited 2019-07-10, Node install version is 10.15.2, which is recent enough.
+> Actually... 2019-07-11 I might be doing it anyway, as I later ran into npm version issues.
+> ...but this doesn't work as of 2019-07-11 on Buster: latest update to the script was 20 hours ago
+> so looks like it's being worked on currently. 
+> https://github.com/node-red/raspbian-deb-package/commits/master/resources/update-nodejs-and-nodered
+
+Referring to [Node-RED documentation](https://nodered.org/docs/hardware/raspberrypi), update Node via:
+
+    bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
+
+Blimey. That's a bit on the brutal side.
+
+> Doesn't work 2019-07-10: `nvm` package not found
+
+    sudo apt install nvm
+
+Following for reference, not necessary if one proceeds as above:
+> Installer throwing all sorts of errors; log file suggests it's not happy about the unmet dependency in the PiCap install, and that's also done something a bit odd with node versions (albeit within nvm). I seem to have got it working with `nvm use system`. Bit worried it may be broken, though.
+> 
+> Then
+>     nvm use lts/*
+>     
+> as requested. Only, that complains about not having version N/A. `nvm list` lists a bunch of things, and yes, `lts` is redirected to N/A. Huh. Set to `nvm use stable` since that seems to be more recent than `system`.
+
+Enable as system service at boot time:
+    sudo systemctl enable nodered.service
