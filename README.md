@@ -140,6 +140,12 @@ Launch, and install Python extension.
 
 > Old, not done, left for reference: Still sort-of needs `/home/pi/.local/bin` in PATH.
 
+#### Unhold, now Code-OSS is building again
+
+    sudo apt-mark unhold code-oss
+    
+(as of 2019-12-13 Headmelted is building Code-OSS again, on 1.42. Which is actually ahead of the general release at this point, hah!)
+
 ## Fonts
 
     sudo apt install fonts-hack fonts-inconsolata
@@ -311,6 +317,9 @@ Then:
 
 Remove the old network widget from the menu bar and faff about with spacers until it looks a bit less rubbish.
 
+#### Update 2019-12-13
+
+After a major `apt upgrade`, needed to hack `/lib/systemd/resolv.conf` again - the file had been reset during the upgrade process.
 
 ### Deploy
 
@@ -337,6 +346,11 @@ and log out/in. )
 Boot from card, run `sudo raspi-config`, select 'Advanced options`, resize root file system, reboot.
 
 
+### TODO: Next time around
+
+* Install the current Adafruit CircuitPython & NeoPixel libraries (NB. they're actually serious about sudo for this!) (also note that Adafruit's 'NeoPixels on a Raspberry Pi' page is five years old as of 2019-07-24, and doesn't work on Buster. Sigh. Looks like we just need `rpi-ws281x-python`.)
+  * This mostly worked: https://thepihut.com/blogs/raspberry-pi-tutorials/using-neopixels-with-the-raspberry-pi
+  * 
 
 
 ---
@@ -405,3 +419,16 @@ Following for reference, not necessary if one proceeds as above:
 
 Enable as system service at boot time:
     sudo systemctl enable nodered.service
+
+### Uninstalling Pimoroni Speaker-pHAT
+
+Bit annoying, but see https://github.com/pimoroni/speaker-phat/issues/17
+
+    copy `/etc/asound.conf` somewhere, delete.
+
+Then in `/boot/config.txt` set lines:
+
+    dtparam=audio=on
+    #dtoverlay=i2s-mmap
+    #dtoverlay=hifiberry-dac
+
